@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  node:
+    image: node:latest
+    container_name: nodejs-app
+    volumes:
+      - ./:/app
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongodb_data:/data/db
+
+  mongosh:
+    image: mongo:latest
+    container_name: mongodb-shell
+    depends_on:
+      - mongo
+    entrypoint: ["mongosh", "--host", "mongo", "--username", "root", "--password", "example"]
+    tty: true  # Keep the terminal open
+
+volumes:
+  mongodb_data:
